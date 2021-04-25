@@ -1,0 +1,142 @@
+Apache介绍
+●Apache HTTP Server (简称Apache )是Apache软件基金会的一个开放源码的网页服务器,是
+世界使用排名第一-的Web服务器软件。它可以运行在几乎所有广泛使用的计算机平台上，由于
+其跨平台和安全性被广泛使用,是最流行的Web服务器端软件之一。 它快速、可靠并且可通过
+简单的API扩充,将Perl/Python等解释器编译到服务器中。
+●Apache HTTP服务器是一个模块化的服务器,源于NCSAhttpd服务器,经过多次修改,成为世
+界使用排名第一的Web服务器软件。
+apache当前版本:2.4.X
+
+应用场景.
+●WEB服务器
+●通过HTTP协议向网络中发布(共享)WEB站点,用户可以通过浏览器访问站点的内容
+
+llS、Nginx、tengine、Lighttpd、tomcat、resin
+
+Apache特点
+1.支持最新的HTTP/2通信协议(2.4.17以后)
+2.拥有简单而强有力的基于文件的配置过程
+3.支持通用网关接口
+4.支持基于IP和基于域名的虚拟主机
+5.支持多种方式的HTTP认证
+6.集成Per|处理模块
+7.集成代理服务器模块
+8.支持实时监视服务器状态和定制服务器日志
+9.支持服务器端包含指令(SSI)
+10.支持安全Socket层(SSL)
+11.提供用户会话过程的跟踪
+12.支持FastCGI
+13.通过第三方模块可以支持JavaServlets
+14.跨平台
+
+新增模块
+Mod_ proxy_ _fcgi :提供fcgi代理
+Mod_ _ratelimit :限制用户带宽
+Mod_ request :过滤客户机请求
+Mod_ remoteip :匹配客户端的IP
+
+新特性
+Mpm (工作模式) : 支持工作模式在apache运行时更改
+但是要开启这种特性,在编译安装要启用这三种功能: --enable-mpms -shared=all --with-
+mpm=event
+完善了event模式
+支持使用自定义变量
+基于FQDN的虚拟主机不再需要NameVirtualHost指令
+增强版的表达式分析器
+支持异步读写
+毫秒级别的keepalivetimeout
+
+APR(Apache portable Run-time libraries , Apache可移植运行库)的目的如其名称- -样,主要为
+上层的应用程序提供一个可以跨越多操作系统平台使用的底层支持接口库。在早期的Apache版
+本中,应用程序本身必须能够处理各种具体操作系统平台的细节,并针对不同的平台调用不同的
+处理函数。
+
+apr部署
+[root@apache_ _251 ~]# wget https://www .apache.org/dist/apr/apr-1.7.0.tar.bz2
+[root@apache_ 251 ~]# tar xf apr-1.7.0.tar.bz2
+[root@apache_ 251 ~]# cd apr-1.7.0
+[root@apache_ _251 apr-1.7.0]# ./configure --prefix=/usr/local/apr
+[root@apache_ _251 apr-1.7.0]# make
+[root@apache_ _251 apr-1.7.0]# make install
+
+
+apr-util
+apr-uti该目录中也是包含了一些常用的开发组件。这些组件与apr目录下的相比,它们与apache
+的关系更加密切一些。比如存储段和存储段组,加密等等。
+
+apr-uti部署
+[root@apache_ _251 ~]# wget https://www.apache.org/dist/apr/apr-til-1.6.1.tar.bz2 ,
+[root@apache_ _251 ~]# tar xf apr-util-1.6.1.tar.bz2
+[root@apache_ 251 ~]# cd apr-util-1.6.1
+[root@apache_ 251 apr-util-1.6.1]# yum install -y expat-devel
+[root@apache_ _251 apr-util-1.6. 1]# ./configure --prefix=/usr/local/apr-util --with-
+apr=/usr/ocal/apr/
+[root@apache_ 251 apr-util-1.6. 1]# make
+[root@apache_ _251 apr-uti-1.6.1]# make install
+
+apr-iconv
+apr- iconv包中的文件主要用于实现iconv编码。目前的大部分编码转换过程都是与本地编码相关的。
+在进行转换之前必须能够正确地设置本地编码。
+
+apr-iconv部署
+[root@apache_ _251 ~]# wget https://www.apache.org/dist/apr/apr-iconv-1.2.2.tar.bz2
+[root@apache_ _251 ~]# tar xf apr-iconv-1.2.2.tar.bz2
+[root@apache_ 251 ~]# cd apr-iconv-1.2.2
+[root@apache_ 251 apr-iconv-1.2.2]# ./configure --prefix=/usr/local/apr-iconv --with-
+apr=/usr/local/apr
+[root@apache_ 251 apr-iconv-1.2.2]# make
+[root@apache_ _251 apr-iconv-1 .2.2]# make install
+
+apache部署
+[root@apache_ _251 ~]# wget https://www .apache.org/disthttpd/httpd-2.4.39.tar.gz
+[root@apache_ 251 ~]# tar xf httpd-2.4.39.tar.gz
+[root@apache_ 251 ~]# cd httpd-2.4.39
+[root@apache_ _251 httpd-2.4.39]# ./configure --prefix=/usr/ocal/apache --enable-mpms-
+shared=all --with-mpm=event --with-apr=/usr/local/apr --with-apr-util=/usr/local/apr-util --enable-
+so --enable-remoteip --enable-proxy --enable-proxy-fcgi --enable- proxy-uwsgi --enable-
+deflate=shared --enable-expires=shared --enable-rewrite=shared --enable-cache - enable file-
+cache --enable-mem-cache --enable-disk-cache --enable-static-support --enable-static-ab --
+disable-userdir --enable-nonportable-atomics --disable-ipv6 --with-sendfile
+[root@apache_ 251 httpd-2.4.39]# make
+[root@apache_ 251 httpd-2.4.39]# make install
+
+yum -y install libxml2-devel
+
+➊
+相关配置指令
+--prefix=/usrlocal/apache指定安装目录
+--enable-mpms-shared=all --with-mpm=event开启动态MPM切换
+--with-apr=/srlocal/apr --with-a-ti=/us/locala/apr-uti指定依赖包apr apr-uti安装路径
+--enable-so打开so模块, so模块是用来提dso支持的apache核心模块
+--enable-remoteip支持基于客户端IP做访问控制
+--enable-proxy --nable proxy-fcgi --enable- proxy-uwsgi启用代理支持PHP Python网站
+--enable-deflate=shared开启压缩
+--enable- expires=shared开启客户端缓存
+--enable rewrite=shared开启URL重写
+--enable-cache --enable-file-cache --enable-mem-cache --enable-disk-cache开启服务器缓存
+--enable- static-support支持静态连接
+--enable- static-ab使用静态连接编译ab - apache http服务器性能测试工具
+--disable-userdir禁用用户主目录提供页面访问
+- enable-nonportable atomics对新式CPU支持,支持原子的比较交换(compare-and -swap, CAS)操作指令
+--disable-ipv6禁用IPV6
+--with-sendfile 开启sendfile 0复制机制
+
+相关目录
+[root@apache_ 251 apache]# tree- 1
+|- bin 二进制命令
+|- build
+|- cgi-bin cgi脚本目录
+|- conf配置文件目录
+|- error错误记录
+|- htdocs 默认网站根目录
+|- icons 小图标
+|- include 一些C语言文件↑
+|- logs日志目录
+|- man帮助手册
+|- manual 在线手册
+|- modules存放apache运行需要的模块
+
+MPM总结
+作用:负责接受请求,处理请求
+特点:基于平台定制,基于业务定制,实现跨平台站点最佳性能。
+建议linux平台的apache配置动态mpm模块

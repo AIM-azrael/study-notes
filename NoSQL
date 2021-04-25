@@ -1,0 +1,66 @@
+非关系型数据库 （非结构化、半结构）
+      缓存数据库： Redis、 Memcached、Tair
+      文档类：MongoDB、 ES
+      列存类： HBASE
+      图像存储 ：Neo4j
+      
+缓存产品介绍： memcached  redis tair
+memcached： 高性能读写、单一数据类型、支持客户端式分布式集群、一致性hash、
+多核结构、多线程读写性能高
+        缺点： 无持久化、节点故障可能出现缓存穿透、分布式需要客户端实现、跨机房数据同步困难
+		     架构扩容复杂度高
+Redis ：高性能读写、多数据类型支持、数据持久化、高可用架构、支持自定义虚拟内存、支持分布式分片集群、
+单线程读写性能高
+        缺点：多线程读写较memcached慢，适合单机多实列环境
+Tair： 高性能读写、支持三种存储引擎（ddb、rdb、ldb）、支持高可用、支持分布式分片集群、
+        缺点： 单机情况下，读写性能较其他慢
+		
+Redis功能介绍：
+    数据类型丰富
+	支持持久化
+	多种内存分配及回收策略
+	支持事务
+	消息队列、消息订阅
+	支持高可用
+	支持分布式分片集群
+	缓存穿透/雪崩
+    Redis API
+	
+Redis安装部署
+    
+     连接方式：
+	   1. 本地：redis-cli -a 123456
+		  远程：redis-cli -h 10.0.0.1 -p 6379 -a 13456
+	   2. 10.0.0.1:6379>AUTH 123456
+	      127.0.0.1:6379> AUTH 123456
+	
+查看参数信息：
+    CONFIG GET *
+	模糊参数： CONFIG GET requ*
+	
+Redis持久化（内存数据保存到磁盘）
+	RDB持久化
+		可以在指定时间间隔内生成数据集的时间快照（point-in-time-snapshot）
+		速度快，适合做备份
+		
+		vim /data/6379/redis.conf
+		dir /data/6379
+		dbfilename dump.rdb
+		save 900 1         #900秒有1个改变
+		save 300 10        #300秒有10个改变
+		save 60 10000      #60秒有10000个改变
+			
+		
+	AOF持久化（append-only log file）
+		记录服务器执行的所有写操作命令，并在服务器启动时，通过重新执行这些命令来还原数据集
+		可以最大程度保证数据不丢失
+        
+		appendonly yes          #是否打开aof日志功能
+		appendfsync always      #每一个命令都同步到aof
+		appendfsync everysec    #每秒写1次
+		appendfsync no          #写入工作交给操作系统，由操作系统判断缓冲区大小，统一写入到aof
+        
+		vim /data/6379/redis
+		appendonly yes
+		appendfsync everysec
+	

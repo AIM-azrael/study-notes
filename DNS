@@ -1,0 +1,113 @@
+DNS介绍
+●DNS是一一个域名系统,在互联网环境中为域名和IP地址相互映射的一个分布式数据库,能够
+使用户更方便的访问互联网，而不用去记住能够被机器直接读取的IP数串。类似于生活中
+的114服务,可以通过人名找到电话号码,也可以通过电话号码找到人名(生活中没有那么准
+确的原因是人名有重名,而域名是全世界唯- -的)。
+●DNS协议运行在UDP协议之上,使用端口号53
+●应用场景:需要域名解析的地方
+
+DNS命名
+域名分国际域名和国内域名两种,对于国际域名而言,其命名规则是:
+域名可以由( a-z、A-Z大小写等价) 26个英文字母、数字( 0-9)以及连接符"-"组成,但是域
+名的首位必须是字母或数字。对于域名的长度也有一定的限制:国际通用顶级域名长度不得超
+过26个字符,中国国家顶级域名长度不得超过20个字符。
+域名管理机构
+Internet域名与地址管理机构( ICANN )是为承担域名系统管理, IP地址分配,协议参数配置
+,以及主服务器系统管理等职能而设立的非盈利机构.现由IANA和其他实体与美国政府约定进
+行管理。
+国内域名的DNS必须在CNNIC注册。
+
+
+DNS查询
+简单查询
+迭代查询
+递归查询
+
+DNS安装
+	yum install -y bind bind-chroot
+		bind DNS主程序包
+		bind-chroot DNS安全包，改变DNS根目录，监牢模式运行
+	方法一 :不使用chroot模式启动DNS
+		开启开机启动
+		[root@baism ~]# systemctl enable named
+		Created symlink from /etc/systemd/system/multi-user.target.wants/named.service to /usr/ib
+		/systemd/system/named.service.
+		启动DNS服务
+		[root@baism ~]# systemctl start named
+	方法二:使用chroot模式DNS
+		将对应的文件移动到chroo根目录
+		主配文件
+		[root@baism ~]# cp /etc/named.conf /var/named/chroot/etc/
+		[root@baism ~]# chgrp named /var/named/chrootletc/named .conf
+		[root@baism ~# naned-checkconf /var/named/chroot/etc/named.conf
+		区域数据库文件
+		[root@baism ~# cp /var/named/named.localhost /var/named/chroot/var/named/ayitula.com.zone
+		[root@baism ~]# chgrp named /var/named/chrootvar/named/ayitula.com.zone
+		[root@baism ~]# cp -p /var/named/named.* /var/named/chrootvar/named/
+		启动DNS服务
+		开机启动
+		[root@baism ~# systemctl enable name-chroot. service
+		Created symlink from /et/systemd/system/multi-user target.wants/named-chroot.service to /us/lib/systemnd/system/named
+		-chroot.service.
+		启动服务
+		[root@baism ~]# systemctl start named-chroot
+
+默认情况下,如果不安装named-chroot这个包,配置文件的路径如下:
+配置文件:/etc/named.conf
+区域数据库文件:/var/named/
+由于我们安装了named- chroot这个用于改变默认DNS配置文件的路径的包,所以相对应的配置
+文件的路径也发生了变化。
+变化如下:
+配置文件:/var/named/chroot/etc/named.conf
+区域数据库文件:/var/named/chroot/var/named/
+
+
+正向解析主配文件
+	//定义一个主域
+	//注意每行都要;结尾
+	zone "ayitula. com;IN{
+	//类型为master
+			typemaster;
+	//区域数据库文件名称
+			file "ayitula. com. zone",
+	};
+
+
+反向解析主配文件
+//定义一一个反向解析
+//此处需要倒写网段
+zone "11. 168.192.inaddr. arpa" IN{
+	type master;
+	file“192.168.11. arpa";
+};
+
+DNS主从
+辅助DNS主配文件
+	//定义-个主域
+	//注意每行都要;结尾
+	zone”ayitula. com' IN {
+	//类型为slave代表辅助
+		type slave;
+	//区域数据库文件名称.
+		file "ayitula. com zone";
+	//设置主DNS IP,向该IP去同步数据
+		masters {192.168.11.16;};
+	};
+
+	//定义-个反向解析
+	//此处需要倒写网段
+	zone "11.168. 192. in. addr. arpa' IN {
+	//类型写slave代表辅助
+		type slave;
+		file '192.168.11. arpa';
+	//设置主DNS IP ,向该IP去同步数据
+		masters{ 192.168.11.16;
+	};
+
+智能解析原理
+在DNS中植入全世界的IP库以及IP对应的地域,当用户来请求解析时, DNS会根据其源IP来定
+位他属于哪个区域I然后去找这个区域的view视图查询对应的域名的区域数据库文件做解析。
+从而使得不同地域的用户解析不同。
+acl bj{IP；}
+view xxx{
+	}

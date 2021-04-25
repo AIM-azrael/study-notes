@@ -1,0 +1,86 @@
+网络文件服务器
+	网络文件服务器:通过网络共享文件或文件夹,实现数据共享。
+	NAS ( network append storage):共享的是文件夹 （SAN 共享设备）
+	1. FTP:文件服务器
+	2. samba:不同系统间的文件夹或设备共享
+	3. NFS:网络文件系统
+
+FTP介绍
+FTP (File transfer protocol)是TCP/IP协议组中的协议之一, 是一个TCP协议。
+功能:在服务器与客户端之间进行文件的传输。FTP就是实现两台计算机之间的拷贝。
+从远程计算机拷贝文件至自己的计算机上,称之为“下载( download)”文件。
+将文件从自己计算机中拷贝至远程计算机上,则称之为“上传( upload)"文件。
+这个古老的协议使用的是明码传输方式,且过去有相当多的安全危机历史。
+为了更安全的使用FTP协议,我们主要介绍较为安全但功能较少的vsftpd(very secure File
+transfer protocol )这个软件。
+FTP是一个C/S类型的软件, FTP监听TCP端口号为21 ,数据端口为20。
+
+应用场景
+	文件服务器、下载服务器、上传服务器
+
+主动模式
+Port模式FTP客户端首先和FTP服务器的TCP 21端口建立连接,通过这个通道发送命令,客户
+端需要接收数据的时候在这个通道上发送PORT命令。PORT命令包含 了客户端用什么端口接
+收数据。在传送数据的时候,服务器端通过自己的TCP 20端口连接至客户端的指定端口发送
+数据。FTP server必须和客户端建立一个新的连接用来传送数据 , vsftp默认模式。
+
+被动模式
+Passive模式在建立控制通道的时候和Standard模式类似,但建立连接后发送的不是Port命令,
+而是Pasv命令。FTP服务器收到Pasv命令后,随机打开一个高端端口(端口号大于1024 )并
+且通知客户端在这个端口上传送数据的请求,客户端连接FTP服务器此端口,然后FTP服务器
+将通过这个端口进行数据的传送,这个时候FTP server不再需要建立一个新的和客户端之间的
+连接。
+
+ftp访问方式
+●FTP服务器在默认的情况下,依据使用者登录的情况而分为三种不同的身份,分别是:
+(1)实体账号:本地账户
+(2)来宾账户: guest
+(3)匿名登录者: anonymous ftp
+
+
+安装部著
+a、vsftp安装
+[root@baism ~]# yum -y install vsftpd
+b、vsftp开机启动
+[root@baism ~]# systemctl enable vsftpd
+Created symlink from /etc/systemd/system/multi-user.target.wants/vsftpd. service to /usr/lib/systemd
+/system/vsftpd.service.
+c、启动vsft服务
+[root@baism ~]# systemctl start vsftpd
+d、验证启动
+[root@baism ~]# lsof-i :21 
+COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME
+vsftpd 1951 root 4u IPv6 32837 0t0 TCP *:ftp (LISTEN)
+
+相关配置文件
+主配文件：/etc/vsftpd/vsftpd.conf
+下载目录：/var/ftp
+FTP日志：/var/log/xferlog
+
+虚拟用户指令
+●
+guest enable=YES
+开启虚拟用户登录功能
+●
+guest_ username=ayitula
+将虚拟用户隐私为本地用户ayitula
+
+创建虚拟用户映射的本地账号
+[root@baism ~]# useradd -s /sbin/nologin -d /varltmp/vuser_ ftp ayitula
+新版vsftpd不允许用户主目录有w权限,因此在主目录下新建一个子目录,赋予700权限。所有上传、下载、删除、重命名等操作
+只能在子目录中进行
+[root@baism ~]# chmod 500 /var/tmp/vuser_ ftp
+设置不同部门之间的根文件夹,给予700权限
+[root@baism ~]# mkdir /var/tmp/vuser. ftp/shichang
+[root@baism ~]# mkdir war/tmp/vuser_ ftp/caiwu
+[root@baism ~]# mkdir /wvar/tmp/vuser_ ftp/xingzheng
+[root@baism ~]# mkdir /var/tmp/vuser. fp/jshu
+[root@baism ~]# chmod 700 /var/tmp/vuser_ ftp/*
+修改部门]共享文件夹的所有者和属组为ayitula
+[root@baism ~]# chown ayitula. ayitula /var/tmp/vuser. ftp -R
+
+vi /etc/vsftpd/vsftpd.conf
+	guest_ enable=YES
+	guest_ usemame-ayitula
+	virtual_ _use_ Jocal_ privs=NO
+	user_ .config_ dir-/etc/vsftpd/vconf.d/

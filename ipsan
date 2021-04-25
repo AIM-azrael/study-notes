@@ -1,0 +1,27 @@
+数据存储技术
+●DSA (Direct Attacted Storage直接附加存储)
+本地磁盘接口:IDE SATA SAS SCSI
+●NAS (Network Attacted Storage网络附加存储)
+网络服务共享:共享的是文件夹。比如samba、 NFS
+●SAN (Network Attacted Storage网络附加存储)
+网络服务共享:共享的是设备。比如iscsi
+
+iscsi介绍
+●iSCSI ( internet SCSI )技术由IBM公司研究开发,是-一个供硬件设备使用的、可以在IP协议的
+.上层运行的SCSI指令集,这种指令集合可以实现在IP网络上运行SCSI协议,使其能够在诸如
+高速千兆以太网.上进行路由选择。iSCSI是一 -种新储存技术 ,它是将现有SCSI接口与以太网络
+(Ethernet)技术结合,使服务器可与使用IP网络的储存装置互相交换资料。
+●iscsi internet小型计算机系统接口是一个基于tcp/ip的协议,用于通过IP网络仿真scsi高性能本
+地存储总线,从而为远程块存储设备提供数据传输和管理。
+●scsit协议套件提供基于设备总线通信协议的命令描述器块(CBD)命令集, iscsi同样保留了CBD命
+令集，通过标准tcp/ip封装的iscsi系统之间执行总线通信。
+●将设备通过tcp/ip的方式共享到客户端,仿真为本地设备
+●ISCSI之间通信是一-种C/S架构。
+●客户端:
+●叫做Initator(发起者C)
+●服务端:
+●这里称之为Target:(目标S) ,每个Target可包含多个LUN(Logical Unit Number逻辑单元)。真
+正提供服务的是LUN。
+
+yum -y install targetcli
+               iscsi-initiator-utils

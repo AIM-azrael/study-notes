@@ -1,0 +1,51 @@
+
+NFS介绍
+●NFS ( Network File System )即网络文件系统，它允许网络中的计算机之间通过TCP/IP网络
+共享资源。在NFS的应用中,本地NFS的客户端应用可以透明地读写位于远端NFS服务器上
+的文件,就像访问本地文件-样。
+●NFS的好处:节省本地存储空间;将常用的数据存放在一 台NFS服务器上且可以通过网络
+访问,那么本地终端将可以减少自身存储空间的使用。
+●NFS体系有两个主要部分:
+NFS服务端机器:通过NFS协议将文件共享到网络。
+NFS客户端机器:通过网络挂载NFS共享目录到本地。
+
+应用场景
+●共享存储服务器:图片服务器、视频服务器等
+●家目录漫游:域用户家目录服务器
+●文件服务器:内容文件存储服务器
+
+a、nfs安装
+[root@baism ~]# yum -Y install nfs-utils
+b、nfs开机启动
+[root@baism ~]# systemctl enable nfs-server
+Created symlink from /etc/systemd/system/multi-user.target.wants/nfs-server .service to
+/us/lib/systemd/system/nfs-server. .service.
+c、nfs启动
+由于服务间的依赖关系,启动NFS之前先要确保rpcbind启动
+[root@baism ~]# systemctl is-active rpcbind
+active
+[root@baism ~]# systemctl start nfs
+d、验证启动
+[root@baism ~]# systemctl is-active nfs
+active
+
+
+相关文件
+●/etc/exports共享文件
+共享格式为:
+共享目录绝对路径授权访问的IP或网段(权限1 , 权限2 )
+/test 192.168.1 1.0/24(ro)
+
+
+创建共享目录
+[root@baism ~]# mkdir /public
+[root@baism ~]# mkdir /protected
+由于客户端挂载用户是nfsnobody ,本题要求客户端挂载后可读写,我们是用root用户建立的
+目录,所以要给其他人7的权限
+[root@baism ~]# chmod 757 /protected/
+通过/etc/exports文件定义共享目录
+[root@baism ~]# cat /etc/exports
+/public 192.168.11.0/24(ro) ,
+/protected 192.168.1 1.0/24(rw)
+
+showmount -e IP

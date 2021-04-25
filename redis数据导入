@@ -1,0 +1,66 @@
+redis手工导入hash
+	1.0mysql中拼接hmset语句
+		select concat("hmset t100w_",id," id ",id," num ",num," k1 ",k1," k2 ",k2)
+		from t100w limit 1000 init outfile '/tmp/redis.txt';
+	2.0将数据导入redis
+		cat /tmp/redis.txt |redis-cli -a 1 &>/tmp/in.log
+		
+ redis消息订阅
+	pulisher    发布者
+	channel     频道
+	subscriber  订阅者
+	
+PUBLISH channel msg
+    将信息 message 发送到指定的频道 channel
+SUBSCRIBE channel [channel ...]
+    订阅频道，可以同时订阅多个频道
+UNSUBSCRIBE [channel ...]
+    取消订阅指定的频道, 如果不指定频道，则会取消订阅所有频道
+PSUBSCRIBE pattern [pattern ...]
+    订阅一个或多个符合给定模式的频道，每个模式以 * 作为匹配符，比如 it* 匹配所   有以 it 开头的频道( it.news 、 it.blog 、 it.tweets 等等)， news.* 匹配所有 以 news. 开头的频道( news.it 、 news.global.today 等等)，诸如此类
+PUNSUBSCRIBE [pattern [pattern ...]]
+    退订指定的规则, 如果没有参数则会退订所有规则
+PUBSUB subcommand [argument [argument ...]]
+    查看订阅与发布系统状态
+注意：使用发布订阅模式实现的消息队列，当有客户端订阅channel后只能收到后续发布到该频道的消息，之前发送的不会缓存，必须Provider和Consumer同时在线。
+
+发布订阅例子：
+窗口1：
+127.0.0.1:6379> SUBSCRIBE baodi 
+窗口2：
+127.0.0.1:6379> PUBLISH baodi "jin tian zhen kaixin!"
+订阅多频道：
+窗口1：
+127.0.0.1:6379> PSUBSCRIBE wang*
+窗口2：
+127.0.0.1:6379> PUBLISH wangbaoqiang "jintian zhennanshou "
+
+
+服务器管理命令
+	info
+	Client list
+	Client kill ip：port
+	config get *
+	CONFIG RESETSTAT 重置统计
+	CONFIG GET/SET   动态修改
+	Dbsize    键值对个数
+	FLUSHALL  清空所有数据
+	select 1    进入第二个库
+	FLUSHDB  清空当前库
+	MONITOR  监控实时指令
+	SHOTDOWN 关闭服务器
+	redis-cli -a root shutdown  关闭数据库
+
+redis主从复制 （Master-replicaset）
+	原理：
+		1. 副本库通过slaveof 10.0.0.51 6379命令,连接主库,并发送SYNC给主库 
+		2. 主库收到SYNC,会立即触发BGSAVE,后台保存RDB,发送给副本库
+		3. 副本库接收后会应用RDB快照
+		4. 主库会陆续将中间产生的新的操作,保存并发送给副本库
+		5. 到此,我们主复制集就正常工作了
+		6. 再此以后,主库只要发生新的操作,都会以命令传播的形式自动发送给副本库.
+		7. 所有复制相关信息,从info信息中都可以查到.即使重启任何节点,他的主从关系依然都在.
+		8. 如果发生主从关系断开时,从库数据没有任何损坏,在下次重连之后,从库发送PSYNC给主库
+		9. 主库只会将从库缺失部分的数据同步给从库应用,达到快速恢复主从的目的
+
+	

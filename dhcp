@@ -1,0 +1,112 @@
+●DHCP(Dynamic Host Configuration. Protocol ,动态主机配置协议)，被应用在局域网环境中,
+主要作用是集中的管理、分配IP地址,使网络环境中的主机动态的获得IP地址、Gateway
+地址、DNS服务器地址等信息,并能够提升地址的使用率。由于DHCP是一个UDP协议 ，所
+以运行起来更加高效。
+
+●DHCP协议采用客户端/服务器模型(C/S模型) .服务端可以为客户端提供IP、掩码、网关、主
+机名、DNS等信息。客户端只需将iP获得方式设置为自动获取即可。
+
+●目前可以提供DHCP服务的设备有很多,比如:
+(1) DHCP服务器(windows server. linux)
+(2)硬件路由器
+(3)家用宽带路由
+
+文件配置
+	/etc/dhcp/dhcpd.conf主配文件
+	#号代表注释
+	全局设置
+	作用域设置(subnet)
+	租约文件的路径: /var/lib/dhcpd/dhcpd.leases
+	默认情况下, dhcp服务并没有提供配置文件,只是给提供了一个demo ,存放在/usr/share/doc
+	/dhcp*/目录下.我们将demo文件拷贝到/etc/dhcp目录下,并且命名为dhcpd.conf.
+
+作用域相关设置指令
+	●subnet定义- -个作用域
+	●netmask定义作用域的掩码
+	●range允许发放的IP范围
+	●option routers指定网关地址
+	●option domain-name-servers指定DNS服务器地址
+	●option broadcast-address广播地址
+
+案例
+option domain-name-servers 8.8.8.8， 202.106.46.151;
+default- lease-time 600;
+max- -lease- -time 7200;
+authoritative;
+log-facility local7;
+subnet 192.168.11.0 netmask 255. 255.255.0 {
+range 192.168.11.153 192.168.11. 252;
+option domain-name-servers 202.106.0.20， 114.114.114.114;
+option routers 192.168.11. 254;
+option broadcast-address 192 . 168.11.255;
+default-lease-time 7200;
+max-lease-time 10800;
+}
+host passacaglia {
+hardware ethernet 0:0:c0:5d:bd:95;
+filename "vmunix . passacaglia";
+server-name "toccata. fugue. com";
+host fantasia {
+hardware ethernet 08:00:07 :26:c0:a5;
+fixed-address fantasia. fugue. com;
+}
+
+
+测试
+dhclient命令
+dhclient是一个DHCP协议客户端,它使用DHCP协议或者BOOTP协议或在这两个协议都不可
+用时使用静态地址来配置一一个或多个网络接口.
+-r :释放当前租约并停止正在运行的DHCP客户端,如先前在PID文件中记录的那样
+-d :强制dhclient作为前台进程运行
+
+
+保留地址
+	●在IP租约到期后,如果无法续订租约, client只能乖乖交出IP地址,重新获得一个其他IP使用
+但是在公司有些服务器的IP地址是不能变化的，因为变了用户就无法连接到服务器了,比
+如公司文件服务器、打印服务器等等。那么在这种环境中我们既想使用DHCP管理公司IP，
+又想实现部分机器的IP永久不变，那么怎么实现呢。
+	●DHCP的作者在写DHCP的时候也想到了这个问题,提出了保留IP的概念,就是将某些IP保留
+,然后服务器来获得IP的时候,根据其MAC地址做匹配,将对应的IP分给它即可。
+
+查看租约
+●租约路径: Ivar/ib/dhcpd/dhcpd.leases
+lease 192.168.11.156 {
+starts 4 2019/02/21 05:40:45;
+ends 4 2019/02/21 07:40:45;
+cltt 4 2019/02/21 05:40:45;
+binding state active;
+h
+next binding state free;
+rewind binding state free;
+hardware ethernet 00:0c:29: 1a:f8:bd;
+}
+
+❺超级作用域
+●DHCP的网卡IP地址为192.168.11.0段,新加的网段为192.168.12.0 ,那么怎
+么能让DHCP服务器既能发11网段,又能发放12网段呢?
+超级作用域
+超级作用域:将两个或以上的不同网段的作用域合成-个作用域既是超级作用域。
+
+超级作用域
+shared-network NAME {
+subnet1
+subnet2...
+}
+shared-network :开启一个超级作用域
+
+例
+opt1on doma1n-name-servers 8.8.8.8;
+default-lease-time 600; .
+max-lease-time 7200;
+authoritative;
+log-facility 1oca17;
+shared-network supper {
+subnet 192.168.11.0 netmask 255.255.255.0 {
+range 192.168.11.188 192.168.11.188; .
+option routers 192 .168.11.254;
+}
+subnet 192.168.12.0 netmask 255. 255.255.0{
+range 192.168.12.188 192.168.12.188;
+option routers 192.168.12. 254;
+}
+}
